@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Date Range Picker -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/styles.css')}}" rel="stylesheet">
+    <!-- Для таблицы себестоимости -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main_table.js') }}"></script>
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/table-icon.png') }}">
+
+    <title>Себестоимость звонков</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+
+                <!--Выбор периода-->
+                <form method="POST" class="period">
+                    <input type="text" name="daterange" value="" />
+                    <script>
+                    $(function() {
+                      $('input[name="daterange"]').daterangepicker({
+                        opens: 'left',
+                        "showDropdowns": true,
+                        "minYear": 2016,
+                        "maxYear": 2050,
+                        "autoApply": true,
+                        "locale": {
+                            "format": "DD.MM.YYYY",
+                            "separator": " - ",
+                            "applyLabel": "Apply",
+                            "cancelLabel": "Cancel",
+                            "fromLabel": "From",
+                            "toLabel": "To",
+                            "customRangeLabel": "Custom",
+                            "weekLabel": "Н",
+                            "daysOfWeek": [
+                                "Вс",
+                                "Пн",
+                                "Вт",
+                                "Ср",
+                                "Чт",
+                                "Пт",
+                                "Сб"
+                            ],
+                            "monthNames": [
+                                "Январь",
+                                "Февраль",
+                                "Март",
+                                "Апрель",
+                                "Май",
+                                "Июнь",
+                                "Июль",
+                                "Август",
+                                "Сентябрь",
+                                "Октябрь",
+                                "Ноябрь",
+                                "Декабрь"
+                            ],
+                            "firstDay": 1,
+                        },
+                        "startDate": "{{ datefrom }}",
+                        "endDate": "{{ dateto }}",
+                        "drops": "right"
+                    },  function(start, end, label) {
+                        console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+                      });
+                    });
+                    </script>
+                    <button type="submit" class="btn btn-primary">Показать</button>
+
+                <!--Список клиентов-->
+                    <details>
+                      <!--Отмечает ранее выбранных клиентов-->
+                      {% if clients_checked: %}
+                        <summary onclick="selected_clients({{ clients_checked }})">Клиенты</summary>
+                      {% else: %}
+                        <summary>Клиенты</summary>
+                      {% endif %}
+                      <div class="content">
+                          <ul>
+                              <li><input type="checkbox" onClick="toggle(this)" checked/> Выбрать все</li>
+                              {% for client in clients: %}
+                                <li><input type="checkbox" name="client-checkbox" value="{{ client[0] }}" checked/> {{ client[1] }}</li>
+                              {% endfor %}
+                          </ul>
+                      </div>
+                    </details>
+                </form>
+
+                <!--Таблица себестоимости-->
+                {% if stats: %}
+                <table class="table table-bordered table-striped table-responsive-stack"  id="tableOne">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Клиент</th>
+                            <th>Приход с площадки</th>
+                            <th>Траты на площадку</th>
+                            <th>Траты на звонки</th>
+                            <th>Траты на услуги</th>
+                            <th>Звонки с площадки</th>
+                            <th>Цена звонка</th>
+                            <th>Цена клиента</th>
+                            <th>Маржа</th>
+                            <th>Заработок</th>
+                        </tr>
+                    </thead>
+                {% for stat in stats: %}
+                    <tr>
+                        {% for i in range(10): %}
+                            <td>{{ stat[i] }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
